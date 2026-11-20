@@ -324,7 +324,7 @@ class GyroMazeEngine:
             p["tilt_x"] = max(-1.0, min(1.0, float(tx)))
             p["tilt_y"] = max(-1.0, min(1.0, float(ty)))
 
-    def add_event(self, text: str, event_type: str = "info", coords: Optional[Tuple[float, float]] = None):
+    def add_event(self, text: str, event_type: str = "info", coords: Optional[Tuple[float, float]] = None, **kwargs):
         evt_id = f"e_{int(time.time()*1000)}_{random.randint(100, 999)}"
         evt = {
             "id": evt_id,
@@ -332,6 +332,7 @@ class GyroMazeEngine:
             "type": event_type,
             "coords": coords,
             "time": time.time(),
+            **kwargs,
         }
         self.events.append(evt)
         if len(self.events) > 35:
@@ -517,7 +518,15 @@ class GyroMazeEngine:
                 p["cooldown"] = 1.8  # 1.8s warp immunity
                 p["warps"] += 1
 
-                self.add_event(f"🌀 {p['name']} fell into {hole['name']} ➔ warped to {target['name']}!", "warp", coords=(target["x"], target["y"]))
+                self.add_event(
+                    f"🌀 {p['name']} fell into {hole['name']} ➔ warped to {target['name']}!",
+                    "warp",
+                    coords=(target["x"], target["y"]),
+                    player_name=p["name"],
+                    hole_name=hole["name"],
+                    target_name=target["name"],
+                    player_id=p["id"],
+                )
 
                 # Notify player over WS
                 if p.get("ws") and not p["ws"].closed:
@@ -552,7 +561,15 @@ class GyroMazeEngine:
                 "warps": p["warps"],
             })
 
-            self.add_event(f"🏆 {p['name']} CROSSED THE GOAL LINE! (Rank #{p['finish_rank']} in {p['finish_time']}s)", "goal", coords=GOAL_POS)
+            self.add_event(
+                f"🏆 {p['name']} CROSSED THE GOAL LINE! (Rank #{p['finish_rank']} in {p['finish_time']}s)",
+                "goal",
+                coords=GOAL_POS,
+                player_name=p["name"],
+                rank=p["finish_rank"],
+                finish_time=p["finish_time"],
+                player_id=p["id"],
+            )
 
             if p.get("ws") and not p["ws"].closed:
                 asyncio.create_task(p["ws"].send_json({

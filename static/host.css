@@ -183,6 +183,7 @@ body.host-body {
 }
 .btn-danger { background: var(--red-hole); color: #fff; }
 .btn-gold { background: var(--gold) !important; color: #111 !important; }
+.btn-muted { opacity: 0.45; filter: grayscale(1); }
 .pulse-btn { animation: pulse-glow 2s infinite ease-in-out; }
 
 /* --------------------------------------------------------------------------

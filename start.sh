@@ -11,9 +11,10 @@ echo "🌀 Starting GYRO MAZE 300 Game Server & Cloudflare Tunnel..."
 echo "========================================================"
 
 # 2. Launch server.py in background
-python3 server.py > server.log 2>&1 &
+PYTHON_BIN=$(which python3.13 2>/dev/null || which python3)
+$PYTHON_BIN server.py > server.log 2>&1 &
 SERVER_PID=$!
-echo "✅ Game Server launched (PID: $SERVER_PID) on port 8000"
+echo "✅ Game Server launched (PID: $SERVER_PID) on port 8000 using $PYTHON_BIN"
 
 # 3. Launch Cloudflare Tunnel
 CLOUDFLARED_BIN=$(which cloudflared || echo "/opt/homebrew/bin/cloudflared")

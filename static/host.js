@@ -91,6 +91,31 @@ class HostController {
     document.getElementById('btn-toggle-sound').addEventListener('click', (e) => {
       const isMuted = window.sfx.toggleMute();
       e.target.textContent = isMuted ? '🔇' : '🔊';
+      e.target.classList.toggle('btn-muted', isMuted);
+    });
+
+    const btnMusic = document.getElementById('btn-toggle-music');
+    if (window.music && !window.music.enabled) {
+      btnMusic.textContent = '🔇';
+      btnMusic.classList.add('btn-muted');
+    }
+    btnMusic.addEventListener('click', (e) => {
+      if (!window.music) return;
+      const enabled = window.music.toggle();
+      e.target.textContent = enabled ? '🎵' : '🔇';
+      e.target.classList.toggle('btn-muted', !enabled);
+    });
+
+    const btnAnnouncer = document.getElementById('btn-toggle-announcer');
+    if (window.announcer && !window.announcer.enabled) {
+      btnAnnouncer.textContent = '🤐';
+      btnAnnouncer.classList.add('btn-muted');
+    }
+    btnAnnouncer.addEventListener('click', (e) => {
+      if (!window.announcer) return;
+      const enabled = window.announcer.toggle();
+      e.target.textContent = enabled ? '🎙️' : '🤐';
+      e.target.classList.toggle('btn-muted', !enabled);
     });
 
     document.getElementById('btn-bot-menu').addEventListener('click', () => window.toggleBotDialog());
@@ -99,9 +124,23 @@ class HostController {
       if (e.code === 'Space') {
         e.preventDefault();
         if (this.phase === 'LOBBY' || this.phase === 'OVER') this.startRace();
-      } else if (e.key === 'm' || e.key === 'M') {
+      } else if (e.key === 's' || e.key === 'S') {
         const isMuted = window.sfx.toggleMute();
-        document.getElementById('btn-toggle-sound').textContent = isMuted ? '🔇' : '🔊';
+        const btn = document.getElementById('btn-toggle-sound');
+        btn.textContent = isMuted ? '🔇' : '🔊';
+        btn.classList.toggle('btn-muted', isMuted);
+      } else if (e.key === 'm' || e.key === 'M') {
+        if (!window.music) return;
+        const enabled = window.music.toggle();
+        const btn = document.getElementById('btn-toggle-music');
+        btn.textContent = enabled ? '🎵' : '🔇';
+        btn.classList.toggle('btn-muted', !enabled);
+      } else if (e.key === 'a' || e.key === 'A') {
+        if (!window.announcer) return;
+        const enabled = window.announcer.toggle();
+        const btn = document.getElementById('btn-toggle-announcer');
+        btn.textContent = enabled ? '🎙️' : '🤐';
+        btn.classList.toggle('btn-muted', !enabled);
       } else if (e.key === 'b' || e.key === 'B') {
         window.toggleBotDialog();
       }
@@ -153,11 +192,33 @@ class HostController {
       this.timer = msg.timer;
       this.balls = msg.balls || [];
 
-      // Sound and timer cues
+      // Match Start Cue
+      if (prevPhase === 'LOBBY' && this.phase === 'PLAYING') {
+        if (window.music) window.music.start();
+        if (window.announcer) window.announcer.onRaceStart();
+      } else if (prevPhase !== 'LOBBY' && this.phase === 'LOBBY') {
+        if (window.music) window.music.stop();
+        if (window.announcer && window.announcer.synth) window.announcer.synth.cancel();
+      }
+
+      // Sound and timer cues during race
       const sec = Math.floor(this.timer);
-      if (sec !== this.lastSecond && this.phase === 'PLAYING') {
-        this.lastSecond = sec;
-        if (sec <= 10 && sec > 0) window.sfx.playTick(true);
+      if (this.phase === 'PLAYING') {
+        if (window.music) window.music.updatePhase(this.timer);
+
+        if (sec !== this.lastSecond) {
+          this.lastSecond = sec;
+          if (sec <= 10 && sec > 0) window.sfx.playTick(true);
+          if (sec === 30 || sec === 10) {
+            if (window.announcer) window.announcer.onFinalCountdown(sec);
+          }
+        }
+
+        // Track live leader change
+        if (msg.leaderboard && msg.leaderboard.length > 0 && window.announcer) {
+          const leader = msg.leaderboard[0];
+          window.announcer.onLeaderChange(leader.name, leader.id);
+        }
       }
 
       // Check events for sounds and FX (processed exactly once in the moment)
@@ -169,9 +230,24 @@ class HostController {
           if (evt.type === 'warp' && evt.coords) {
             window.sfx.playWarp();
             this.spawnWarpSparks(evt.coords[0], evt.coords[1]);
+            if (window.announcer) {
+              const isTop = msg.leaderboard && msg.leaderboard[0] && 
+                            (msg.leaderboard[0].name === evt.player_name || msg.leaderboard[0].id === evt.player_id);
+              window.announcer.onWarp(evt.player_name || 'A racer', evt.hole_name || 'a Red Hole', isTop);
+            }
           } else if (evt.type === 'goal' && evt.coords) {
             window.sfx.playGoalFanfare();
             this.spawnGoalFireworks(evt.coords[0], evt.coords[1]);
+            if (window.announcer) {
+              const rank = evt.rank || (msg.podium ? msg.podium.length : 1);
+              if (rank === 1) {
+                window.announcer.onFirstPlaceFinish(evt.player_name || 'A racer', evt.finish_time || '45');
+              } else if (rank === 2) {
+                window.announcer.onSecondPlaceFinish(evt.player_name || 'A racer');
+              } else if (rank === 3) {
+                window.announcer.onThirdPlaceFinish(evt.player_name || 'A racer');
+              }
+            }
           }
         });
 
@@ -182,6 +258,8 @@ class HostController {
 
       // Match Completion
       if (prevPhase === 'PLAYING' && this.phase === 'OVER') {
+        if (window.music) window.music.stop();
+        if (window.announcer) window.announcer.onRaceOver(msg.podium);
         window.sfx.playBuzzer();
         setTimeout(() => {
           window.sfx.playGoalFanfare();
@@ -315,12 +393,16 @@ class HostController {
   startRace() {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       window.sfx.init();
+      if (window.music) window.music.init();
+      if (window.announcer) window.announcer.initVoice();
       this.ws.send(JSON.stringify({ type: 'host_start' }));
     }
   }
 
   resetRace() {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      if (window.music) window.music.stop();
+      if (window.announcer && window.announcer.synth) window.announcer.synth.cancel();
       this.ws.send(JSON.stringify({ type: 'host_reset' }));
     }
   }
