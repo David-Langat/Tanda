@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GYRO MAZE 300 - Big Screen Arena</title>
+  <link rel="stylesheet" href="/host.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="host-body">
+  <div id="stars-bg"></div>
+
+  <!-- Top HUD -->
+  <header class="top-hud">
+    <div class="brand">
+      <div class="logo-icon">🌀</div>
+      <div class="brand-text">
+        <span class="game-title">GYRO MAZE 300</span>
+        <span class="game-sub">300-PLAYER REALTIME GYROSCOPE MARBLE BATTLE</span>
+      </div>
+    </div>
+
+    <!-- Center Mega Timer -->
+    <div class="timer-container">
+      <div id="phase-badge" class="phase-badge phase-lobby">LOBBY STAGING</div>
+      <div id="timer-display" class="timer-display">02:00</div>
+    </div>
+
+    <!-- Controls & Player Counts -->
+    <div class="hud-controls">
+      <div class="player-counter">
+        <span class="icon">👥</span>
+        <span id="player-count">0</span>
+        <span class="counter-label" id="counter-sub">Racers</span>
+      </div>
+
+      <div class="button-group">
+        <button id="btn-toggle-sound" class="btn btn-icon" title="Toggle Sound">🔊</button>
+        <button id="btn-bot-menu" class="btn btn-secondary">🤖 Bots <span id="bot-count-tag">(0)</span></button>
+        <button id="btn-start-match" class="btn btn-primary pulse-btn">START RACE (SPACE)</button>
+        <button id="btn-reset-match" class="btn btn-danger" style="display:none;">RESET</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Arena -->
+  <main class="arena-layout">
+    <!-- Left / Center: The Giant Maze Canvas -->
+    <section class="maze-section">
+      <div class="canvas-frame">
+        <canvas id="maze-canvas" width="840" height="840"></canvas>
+        <canvas id="fx-canvas" width="840" height="840"></canvas>
+      </div>
+
+      <!-- Bottom Broadcast Ticker -->
+      <div class="ticker-box">
+        <span class="ticker-label">VORTEX RADAR:</span>
+        <span class="ticker-content" id="ticker-feed">Waiting for racers to calibrate phone gyroscopes...</span>
+      </div>
+    </section>
+
+    <!-- Right Sidebar: Live Race Leaderboard & Legend -->
+    <aside class="sidebar-section">
+      <!-- Live Leaderboard Card -->
+      <div class="card leaderboard-card">
+        <div class="card-header">
+          <span class="c-title">🏆 LIVE STANDINGS</span>
+          <span class="c-badge" id="finished-count-tag">0 Finished</span>
+        </div>
+        <div class="leaderboard-list" id="leaderboard-list">
+          <div class="empty-msg">Racers on the starting grid...</div>
+        </div>
+      </div>
+
+      <!-- Red Hole Legend -->
+      <div class="card legend-card">
+        <div class="card-header">
+          <span class="c-title">🌀 HAZARD INTEL</span>
+        </div>
+        <p class="legend-desc">
+          <span class="hazard-dot red-dot"></span> <strong>Red Holes (8 Total)</strong>: Any ball landing on a Red Hole is instantly sucked in and teleported to a random distant vortex!
+        </p>
+        <div class="legend-row">
+          <span class="leg-item"><span class="hazard-dot green-dot"></span> Start Pad (Launch)</span>
+          <span class="leg-item"><span class="hazard-dot gold-dot"></span> Golden Finish Portal</span>
+        </div>
+      </div>
+
+      <!-- Quick Join Widget -->
+      <div class="card join-widget-card">
+        <div class="join-widget-header">
+          <span class="jw-title">JOIN ON SAME WI-FI</span>
+        </div>
+        <div class="join-widget-body">
+          <div class="qr-thumbnail" id="qr-mini"></div>
+          <div class="join-details">
+            <span class="join-sub">Scan or visit:</span>
+            <span class="join-link-text" id="sidebar-url-text">http://192.168.201.26:8000/play</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- LOBBY OVERLAY MODAL (Shows large QR code for joining) -->
+  <div id="lobby-modal" class="modal-overlay">
+    <div class="lobby-card">
+      <div class="lobby-badge">JOIN ON SAME WI-FI</div>
+      <h1 class="lobby-title">TILT YOUR PHONE TO STEER</h1>
+      <p class="lobby-subtitle">Up to 300 Players • Gyroscope Marble Race • 8 Red Hole Wormholes • 120 Seconds</p>
+
+      <div class="lobby-body">
+        <div class="lobby-qr-frame">
+          <div id="lobby-qr-svg"></div>
+          <div class="lobby-link" id="lobby-url-display">http://192.168.201.26:8000/play</div>
+        </div>
+
+        <div class="lobby-status">
+          <div class="lobby-count-circle">
+            <span id="lobby-count-num">0</span>
+            <span class="sub">RACERS</span>
+          </div>
+          <p class="lobby-guide">
+            Open camera on your iPhone / Android to scan and calibrate your phone's tilt!
+          </p>
+
+          <div class="quick-bot-controls">
+            <span class="bot-lbl">Quick Demo Bots:</span>
+            <button class="btn btn-sm" onclick="setBotCount(50)">+50 Bots</button>
+            <button class="btn btn-sm" onclick="setBotCount(150)">+150 Bots</button>
+            <button class="btn btn-sm btn-gold" onclick="setBotCount(300)">+300 Full Swarm</button>
+            <button class="btn btn-sm btn-clear" onclick="clearBots()">Clear</button>
+          </div>
+
+          <button id="btn-lobby-start" class="btn btn-huge pulse-btn">START 2-MINUTE RACE (SPACEBAR)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY CELEBRATION MODAL -->
+  <div id="victory-modal" class="modal-overlay" style="display: none;">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="victory-card">
+      <div class="victory-header">
+        <div class="trophy-icon">🏆</div>
+        <div class="champ-banner" id="champ-banner">RACER APEX WINS 1ST PLACE!</div>
+        <p class="champ-sub" id="champ-sub">Conquered the maze and escaped the Red Holes in 48.2s!</p>
+      </div>
+
+      <!-- Podium Grid -->
+      <div class="podium-grid" id="podium-cards"></div>
+
+      <!-- Void Traveler Award -->
+      <div class="special-award-box" id="award-box">
+        <span class="award-badge">🌀 VOID TRAVELER AWARD</span>
+        <span class="award-text" id="award-text">Racer-Nova warped through 7 Red Holes!</span>
+      </div>
+
+      <div class="victory-actions">
+        <button id="btn-play-again" class="btn btn-huge pulse-btn">PLAY AGAIN (SPACEBAR)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bot Dialog -->
+  <div id="bot-dialog" class="mini-dialog" style="display:none;">
+    <h4>Simulate Racers</h4>
+    <p>Populate the maze with autonomous gyro marble bots to test load.</p>
+    <div class="dialog-btns">
+      <button class="btn btn-sm" onclick="setBotCount(50)">50 Bots</button>
+      <button class="btn btn-sm" onclick="setBotCount(150)">150 Bots</button>
+      <button class="btn btn-sm btn-gold" onclick="setBotCount(300)">300 Bots</button>
+      <button class="btn btn-sm btn-danger" onclick="clearBots()">Remove All</button>
+      <button class="btn btn-sm" onclick="toggleBotDialog()">Close</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/qrcode.js"></script>
+  <script src="/sfx.js"></script>
+  <script src="/host.js"></script>
+</body>
+</html>

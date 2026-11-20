@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GYRO MAZE 300 - Phone Controller</title>
+  <link rel="stylesheet" href="/play.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="player-body">
+
+  <!-- 1. JOIN & CALIBRATE VIEW -->
+  <div id="join-screen" class="view-panel active-panel">
+    <div class="join-card">
+      <div class="brand-badge">🌀 300-PLAYER RACE</div>
+      <h1 class="game-headline">GYRO MAZE 300</h1>
+      <p class="game-tagline">Tilt your phone to steer through the maze</p>
+
+      <form id="join-form" onsubmit="event.preventDefault(); joinGame();">
+        <div class="input-group">
+          <label for="player-name-input">RACER CALLSIGN</label>
+          <input type="text" id="player-name-input" maxlength="14" placeholder="Enter nickname..." autofocus required autocomplete="off">
+        </div>
+
+        <!-- Color Selector -->
+        <div class="color-picker-box">
+          <label>CHOOSE YOUR BALL COLOR</label>
+          <div class="color-swatches" id="color-swatches">
+            <button type="button" class="swatch selected" data-idx="0" style="background: #00e5ff;"></button>
+            <button type="button" class="swatch" data-idx="1" style="background: #ff2a5f;"></button>
+            <button type="button" class="swatch" data-idx="2" style="background: #00ff88;"></button>
+            <button type="button" class="swatch" data-idx="3" style="background: #ffbe0b;"></button>
+            <button type="button" class="swatch" data-idx="4" style="background: #b026ff;"></button>
+            <button type="button" class="swatch" data-idx="5" style="background: #ff6600;"></button>
+            <button type="button" class="swatch" data-idx="6" style="background: #ffffff;"></button>
+            <button type="button" class="swatch" data-idx="7" style="background: #ff0077;"></button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-enter" class="btn-join pulse-btn">ENABLE GYRO & JOIN</button>
+        <button type="button" class="btn-quick" onclick="quickRandomName()">🎲 Random Callsign</button>
+      </form>
+
+      <div class="hazard-warning-pill">
+        ⚠️ Watch out for <strong>Red Holes</strong> on the big screen! They will teleport your ball to random parts of the maze.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ACTIVE GYRO CONTROLLER HUD -->
+  <div id="game-screen" class="view-panel" style="display: none;">
+    <!-- Header -->
+    <header class="controller-header" id="controller-header">
+      <div class="player-info-badge">
+        <span class="ball-preview-dot" id="ball-dot-preview"></span>
+        <div class="player-details">
+          <span class="player-callsign" id="hud-player-name">Racer</span>
+          <span class="racer-status" id="hud-racer-status">HOLD PHONE LEVEL</span>
+        </div>
+      </div>
+
+      <div class="timer-rank-pill">
+        <div class="match-timer" id="ctrl-timer">02:00</div>
+        <div class="personal-rank">Rank: <span id="ctrl-rank">#1</span></div>
+      </div>
+    </header>
+
+    <!-- Progress To Goal -->
+    <div class="progress-section">
+      <div class="prog-header">
+        <span class="prog-label">🏁 DISTANCE TO FINISH</span>
+        <span class="prog-val" id="prog-pct-text">0%</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" id="prog-fill-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- TILT COMPASS & BUBBLE LEVEL DISPLAY -->
+    <div class="level-compass-wrapper" id="tilt-pad-area">
+      <div class="level-disc" id="level-disc">
+        <!-- Center Target Rings -->
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        
+        <!-- Live Moving Marble Bubble -->
+        <div class="level-marble" id="level-marble"></div>
+      </div>
+
+      <div class="tilt-angles-readout">
+        <span>TILT X: <strong id="readout-x">0°</strong></span>
+        <span>TILT Y: <strong id="readout-y">0°</strong></span>
+      </div>
+    </div>
+
+    <!-- Controller Controls: Gyro vs Touch Pad & Re-Calibrate -->
+    <div class="controller-controls-bar">
+      <button class="btn-ctrl-mode" id="btn-recalibrate" onclick="recalibrateGyro()">📐 RE-CALIBRATE</button>
+      <button class="btn-ctrl-mode active" id="btn-mode-toggle" onclick="toggleControlMode()">📱 GYROSCOPE</button>
+    </div>
+
+    <!-- Red Hole Warp Alert Overlay -->
+    <div class="warp-flash-banner" id="warp-banner" style="display: none;">
+      <span class="warp-icon">🌀</span>
+      <div class="warp-text">
+        <strong>SUCKED INTO RED HOLE!</strong>
+        <span id="warp-details">Teleporting to random vortex...</span>
+      </div>
+    </div>
+
+    <!-- Finished Banner (if player crosses goal) -->
+    <div class="finished-banner" id="finished-banner" style="display: none;">
+      🏆 YOU CROSSED THE FINISH LINE!
+      <span id="finish-rank-text">Rank #1 • 42.5s</span>
+    </div>
+  </div>
+
+  <!-- 3. MATCH OVER VIEW -->
+  <div id="game-over-screen" class="view-panel" style="display: none;">
+    <div class="over-card">
+      <div class="over-badge">RACE CONCLUDED</div>
+      <h2 class="over-title">CHECKERED FLAG!</h2>
+      <p class="over-sub">Watch the big screen for the final podium and awards ceremony!</p>
+
+      <div class="personal-summary">
+        <div class="summary-stat">
+          <span class="s-val" id="final-rank">#1</span>
+          <span class="s-lbl">Final Standing</span>
+        </div>
+        <div class="summary-stat">
+          <span class="s-val" id="final-warps">0</span>
+          <span class="s-lbl">Red Hole Warps</span>
+        </div>
+      </div>
+
+      <div class="awaiting-box">
+        <div class="pulse-dot"></div>
+        <span>Awaiting Host to start rematch...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/sfx.js"></script>
+  <script src="/play.js"></script>
+</body>
+</html>

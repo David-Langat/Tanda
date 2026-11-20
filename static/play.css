@@ -1,0 +1,419 @@
+/* ==========================================================================
+   GYRO MAZE 300 - Mobile Phone Controller Styles
+   Mobile-First, Responsive Gyroscope & Touchpad Interface
+   ========================================================================== */
+
+:root {
+  --bg-dark: #070912;
+  --bg-card: rgba(16, 22, 38, 0.95);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --text-main: #f0f4fc;
+  --text-muted: #8a9bb6;
+
+  --cyan: #00e5ff;
+  --cyan-glow: rgba(0, 229, 255, 0.4);
+  --red-hole: #ff0044;
+  --green: #00ff88;
+  --gold: #ffd700;
+
+  --player-color: #00e5ff;
+
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body.player-body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  overflow: hidden;
+  position: relative;
+}
+
+.view-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   1. Join View
+   -------------------------------------------------------------------------- */
+#join-screen {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #16203a 0%, #060812 100%);
+  touch-action: manipulation;
+}
+
+.join-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px 22px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.brand-badge {
+  display: inline-block;
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.game-headline {
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  background: linear-gradient(90deg, #ffffff, var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+
+.game-tagline {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+.input-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+#player-name-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  outline: none;
+}
+#player-name-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+}
+
+/* Color Swatches */
+.color-picker-box {
+  margin-bottom: 18px;
+  text-align: left;
+}
+.color-picker-box label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.color-swatches {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.swatch.selected {
+  border-color: #ffffff;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.btn-join {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--cyan), #0077ff);
+  border: none;
+  border-radius: 12px;
+  color: #030814;
+  font-family: var(--font-main);
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+  margin-bottom: 10px;
+}
+
+.btn-quick {
+  width: 100%;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.hazard-warning-pill {
+  background: rgba(255, 0, 68, 0.12);
+  border: 1px solid rgba(255, 0, 68, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   2. Active Gyro Controller Screen
+   -------------------------------------------------------------------------- */
+#game-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+/* Header */
+.controller-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--player-color);
+}
+.player-info-badge { display: flex; align-items: center; gap: 10px; }
+.ball-preview-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--player-color);
+  box-shadow: 0 0 10px var(--player-color);
+}
+.player-details { display: flex; flex-direction: column; }
+.player-callsign { font-size: 0.9rem; font-weight: 900; color: #fff; }
+.racer-status { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); }
+
+.timer-rank-pill { text-align: right; }
+.match-timer { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; color: #fff; line-height: 1; }
+.personal-rank { font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold); font-weight: 700; }
+
+/* Progress To Goal */
+.progress-section {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.prog-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.prog-label { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--cyan); }
+.prog-val { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: #fff; }
+.prog-track { height: 10px; background: rgba(255, 255, 255, 0.08); border-radius: 5px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, #0077ff, var(--cyan)); border-radius: 5px; transition: width 0.2s ease-out; }
+
+/* Level Compass & Marble Disc */
+.level-compass-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.level-disc {
+  width: min(65vw, 240px);
+  height: min(65vw, 240px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #151d34 0%, #0a0e1c 100%);
+  border: 3px solid rgba(0, 229, 255, 0.4);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.crosshair-h {
+  position: absolute;
+  top: 50%; left: 10%; right: 10%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.crosshair-v {
+  position: absolute;
+  left: 50%; top: 10%; bottom: 10%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.ring-1 { width: 40%; height: 40%; }
+.ring-2 { width: 75%; height: 75%; }
+
+/* The Moving Marble Bubble */
+.level-marble {
+  position: absolute;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--player-color);
+  box-shadow: 0 0 16px var(--player-color);
+  border: 2px solid #ffffff;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s ease-out;
+  pointer-events: none;
+}
+
+.tilt-angles-readout {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.tilt-angles-readout strong { color: var(--cyan); }
+
+/* Controller Controls Bar */
+.controller-controls-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.btn-ctrl-mode {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-ctrl-mode.active {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* Red Hole Flash Alert */
+.warp-flash-banner {
+  position: absolute;
+  top: 20%; left: 16px; right: 16px;
+  background: rgba(255, 0, 68, 0.95);
+  border: 2px solid #fff;
+  box-shadow: 0 0 40px rgba(255, 0, 68, 0.8);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 50;
+  animation: warp-shake 0.3s ease-in-out;
+}
+.warp-icon { font-size: 2.2rem; }
+.warp-text { display: flex; flex-direction: column; text-align: left; }
+.warp-text strong { font-size: 1rem; color: #fff; }
+.warp-text span { font-size: 0.75rem; color: #ffccd5; font-family: var(--font-mono); }
+
+/* Finished Banner */
+.finished-banner {
+  background: rgba(0, 255, 136, 0.2);
+  border: 2px solid var(--green);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--green);
+  text-align: center;
+}
+.finished-banner span { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; margin-top: 2px; }
+
+/* --------------------------------------------------------------------------
+   3. Game Over Screen
+   -------------------------------------------------------------------------- */
+#game-over-screen { align-items: center; justify-content: center; }
+.over-card {
+  width: 100%; max-width: 360px;
+  background: var(--bg-card);
+  border: 2px solid var(--gold);
+  border-radius: 20px;
+  padding: 32px 20px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.25);
+}
+.over-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.over-title { font-size: 1.8rem; font-weight: 900; color: var(--gold); margin-bottom: 8px; }
+.over-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
+.personal-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 24px; background: rgba(0, 0, 0, 0.3); padding: 14px; border-radius: 12px;
+}
+.summary-stat .s-val { display: block; font-family: var(--font-mono); font-size: 1.8rem; font-weight: 900; color: #fff; }
+.summary-stat .s-lbl { font-size: 0.72rem; color: var(--text-muted); }
+
+.awaiting-box { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; color: var(--text-muted); font-family: var(--font-mono); }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); animation: pulse 1.2s infinite ease-in-out; }
+
+/* Animations */
+@keyframes warp-shake {
+  0% { transform: scale(0.9) rotate(0deg); }
+  25% { transform: scale(1.05) rotate(-3deg); }
+  75% { transform: scale(1.05) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes pulse { 0% { transform: scale(0.8); opacity: 0.4; } 50% { transform: scale(1.4); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.4; } }
